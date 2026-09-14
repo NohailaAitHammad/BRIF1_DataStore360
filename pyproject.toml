@@ -17,4 +17,5 @@ dependencies = [
     "jupyterlab",
     "ipykernel",
     "python-dotenv",
+    "setuptools<81",
 ]
