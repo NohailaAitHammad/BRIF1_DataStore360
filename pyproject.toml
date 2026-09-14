@@ -1,0 +1,20 @@
+[project]
+name = "datastore360"
+version = "0.1.0"
+description = "Data engineering pipeline for DataStore360"
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "seaborn",
+    "ydata-profiling",
+    "psycopg2-binary",
+    "sqlalchemy",
+    "jupyter",
+    "jupyterlab",
+    "ipykernel",
+    "python-dotenv",
+]

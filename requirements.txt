@@ -1,0 +1,13 @@
+pandas
+numpy
+matplotlib
+seaborn
+ydata-profiling
+psycopg2-binary
+sqlalchemy
+jupyter
+jupyterlab
+ipykernel
+python-dotenv
+
+
