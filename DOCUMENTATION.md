@@ -56,3 +56,4 @@
       - Data Quality : https://www.geeksforgeeks.org/data-science/what-is-data-quality-and-why-is-it-important/
 
       - Data Profiling :  méthode permet d’évaluer la qualité et le contenu des données afin de les filtrer efficacement et d’en produire une version synthétisée.https://www.geeksforgeeks.org/data-analysis/understanding-data-profiling/
+
