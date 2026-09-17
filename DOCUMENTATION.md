@@ -57,3 +57,9 @@
 
       - Data Profiling :  méthode permet d’évaluer la qualité et le contenu des données afin de les filtrer efficacement et d’en produire une version synthétisée.https://www.geeksforgeeks.org/data-analysis/understanding-data-profiling/
 
+
+      - Skewness : oefficient d'asymétrie
+      - Skewness = 0 : La distribution est symétrique (comme la loi normale). 
+      - Skewness > 0 : La distribution est asymétrique à droite (queue positive plus longue, moyenne souvent supérieure à la médiane). 
+      - Skewness < 0 : La distribution est asymétrique à gauche (queue négative plus longue, moyenne souvent inférieure à la médiane). 
+      - Ce coefficient est crucial pour évaluer la normalité des données et comprendre si les valeurs extrêmes sont concentrées d'un côté spécifique de la moyenne. 
