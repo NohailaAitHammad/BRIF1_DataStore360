@@ -157,7 +157,7 @@ Le fonctionnement général du pipeline est :
 
 
 ### 5. Structure du projet
-
+```text
 DataStore360/
 │
 ├── data/
@@ -199,7 +199,7 @@ DataStore360/
 ├── .gitignore
 ├── README.md
 └── DOCUMENTATION.md
-
+```
 
 ### 6. Data Quality
 
