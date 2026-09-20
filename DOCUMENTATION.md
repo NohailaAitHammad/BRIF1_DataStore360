@@ -1,228 +1,600 @@
-### Documentation du jour 1
-      -  uv: un outil qui permet def gerer les projets python et leurs dependances et aussi creer des environnement virtuels dévloppé en Rust.
-      - Apatche Airflow : plateforme open source d'orchestration des workflow. Elle permet de definir des piplines sous forme de DAGs , de les planifier, d'ecxecuter les taches dans le bon ordre et de surveiller leur etat et log
-      - dependance :   une tache doit attendre qu'une autre tache soit terminer
-      - DAGs : (Directed Acyclic Graph) representation des taches et de leurs dependances
-      - les caracteristiques du airflow est dynamic( le workflow peut etre generer et configure avec du code), Exatensible ( on peut l'adapter et l'etendre), Scalable (pouvoir gerer une charge qui augmente)
-
-
-      - les pricipes de qualites : pas encore 
-      - RGPD : pas encore 
-      - Architecture de donnes (staging/core) : pas encore 
-      - Data profiling : pas encore 
-      - y-data-profiling : pas encore 
-      - EDA : pas encore 
-      - Dataset :  une collection de donnees dtrucures ou non structure contenant des lignes et des colonnes e, utiliser pour l’analyse ou la modelisation
-
-      - https://www.geeksforgeeks.org/data-science/what-is-dataset/
-
-      - Data Engineer : consiste a construire les systems et les piplines qui permettent de colecter , transformer, stocker et rendre disponible les donnes pour l’analyse et l’AI.
-
-      - EDA : Exploratory Data Analysis  ,  une procedure iterative qui consiste a resumer, visualiser et explorer les informations affin de deceler des tendances, des anomalies et des relations qui ne sont pas immediatement apparente
-
-      - faite en 8 etapes  : 
-
-            - Comprendre le probleme et les donnees : voir le probleme a resoudre et comprendre sur quoi tu va faire vos analyses
-
-            - Importer et examiner les donnees :  importe rles donnes en utilisant pandas (read_csv …), voir la strucure, les lignes les colonnes, les types et formats des donnes oiur chaque variable, chercher les valeurs invalides , aberrantes
-
-            - Gestion des valeurs manquantes leur nombre pour chaque variable et reflechie comment vous traiter ce cas le rembplacer par median ou mode ou bin 0 ou bien les supprime 
-
-            - Explorer les caracteristiques des donnes : la diversite, la repartision , la distrubiton 
-
-            - Effecture la transformation des donnees: 
-
-            - Mise à l'échelle ou normalisation des variables numériques selon une norme (par exemple, **mise à l'échelle min-max, standardisation**).
-    
-            - Encodage des variables catégorielles à utiliser dans les méthodes d'apprentissage automatique (par exemple, encodage one-warm, encodage par étiquettes)
-            - Appliquer des différences mathématiques aux variables numériques (par exemple, logarithmiques, racine carrée) pour corriger l'asymétrie ou la non-linéarité
-            - Création de variables ou de capacités dérivées principalement basées sur les variables actuelles (par exemple, calcul de ratios, combinaison de variables)
-            - Regroupement ou agrégation d'enregistrements principalement en fonction de variables ou de situations uniques
-
-      - Visualiser les relation entre donnees:
-
-      - analyses univariées, bivariées et multivariées à partir de l'ensemble de données (Matplotlib, seaborn)
-
-      - Gestion des valeurs aberrantes : 
-
-      - Une **valeur aberrante** est une donnée qui s'écarte significativement des autres données (dites normales).
-
-      - utiliserons la méthode de l'écart interquartile ( **EIQ** ) pour identifier les valeurs aberrantes de ces variables. Cette méthode est robuste car elle définit les valeurs aberrantes en fonction de la dispersion statistique des données.
-
-      -     Communiquer les resultats et les observations
-
-      -     https://www.geeksforgeeks.org/data-analysis/steps-for-mastering-exploratory-data-analysis-eda-steps/#step-1-understand-the-problem-and-the-data
-
-      - Data Quality : https://www.geeksforgeeks.org/data-science/what-is-data-quality-and-why-is-it-important/
-
-      - Data Profiling :  méthode permet d’évaluer la qualité et le contenu des données afin de les filtrer efficacement et d’en produire une version synthétisée.https://www.geeksforgeeks.org/data-analysis/understanding-data-profiling/
-
-
-      - Skewness : oefficient d'asymétrie
-      - Skewness = 0 : La distribution est symétrique (comme la loi normale). 
-      - Skewness > 0 : La distribution est asymétrique à droite (queue positive plus longue, moyenne souvent supérieure à la médiane). 
-      - Skewness < 0 : La distribution est asymétrique à gauche (queue négative plus longue, moyenne souvent inférieure à la médiane). 
-      - Ce coefficient est crucial pour évaluer la normalité des données et comprendre si les valeurs extrêmes sont concentrées d'un côté spécifique de la moyenne. 
-
-
-Pourquoi staging ?
-
-Conserver une copie des données brutes avant transformation.
-
-Pourquoi core ?
-
-Stocker les données nettoyées, transformées et pseudonymisées.
-
-Pourquoi SHA-256 ?
-
-Remplacer le nom client en clair par une valeur pseudonymisée.
-
-Pourquoi Airflow ?
-
-Orchestrer les différentes étapes du pipeline.
-
-Pourquoi PostgreSQL ?
-
-Stocker les données structurées avec des contraintes PK/FK.
-
-Pourquoi l'idempotence ?
-
-Permettre de relancer le pipeline sans créer de doublons.
-
 # Documentation DataStore360
 
 ## 1. Concepts étudiés
 
 ### 1.1 Dataset
-...
+
+Un **dataset** est un ensemble de données organisé, généralement sous forme de lignes et de colonnes lorsqu'il est structuré. Il peut contenir différentes informations utilisées pour l'analyse, la visualisation ou la modélisation.
+
+Dans DataStore360, le dataset utilisé contient principalement des informations concernant :
+- les commandes.
+- les clients.
+- les produits.
+- les ventes.
+- les dates de commande et d'expédition.
+- les remises.
+- les bénéfices.
+
+**Source :**  
+https://www.geeksforgeeks.org/data-science/what-is-dataset/
 
 ### 1.2 Data Engineer
-...
+
+Le **Data Engineer** est chargé de construire et maintenir les systèmes permettant de collecter, extraire, transformer, nettoyer, stocker et rendre disponibles les données pour l'analyse.
+
+Dans DataStore360, le pipeline suit notamment ce flux :
+
+```text
+Extraction
+    ↓
+Staging
+    ↓
+Nettoyage
+    ↓
+Transformation
+    ↓
+Core
+    ↓
+Validation
+```
 
 ### 1.3 Data Quality
-...
 
-### 1.4 EDA
-...
+La **Data Quality** correspond à la capacité des données à être suffisamment correctes, complètes, cohérentes et fiables pour l'utilisation prévue.
+
+Dans DataStore360, les contrôles concernent notamment :
+- la complétude ;
+- l'unicité ;
+- la cohérence ;
+- la validité ;
+- les valeurs manquantes ;
+- les doublons ;
+- les dates ;
+- les valeurs aberrantes ;
+- les contraintes métier.
+
+**Source :**  
+https://www.geeksforgeeks.org/data-science/what-is-data-quality-and-why-is-it-important/
+
+### 1.4 EDA — Exploratory Data Analysis
+
+L'**EDA (Exploratory Data Analysis)** consiste à explorer, résumer et visualiser les données afin d'identifier les tendances, distributions, anomalies, relations entre variables, valeurs manquantes et valeurs aberrantes.
+
+Dans DataStore360, l'EDA a permis de comprendre la structure du dataset avant le nettoyage.
+
+#### Étapes principales
+
+1. **Comprendre le problème et les données** : contexte, objectifs, variables et règles métier.
+2. **Importer et examiner les données** avec Pandas.
+3. **Analyser les valeurs manquantes** et choisir une stratégie adaptée.
+4. **Explorer les caractéristiques des données** : diversité, fréquences et distributions.
+5. **Transformer les données** lorsque nécessaire.
+6. **Visualiser les relations** avec Matplotlib et Seaborn.
+7. **Analyser les valeurs aberrantes**, notamment avec l'IQR.
+8. **Communiquer les résultats et observations**.
+
+Exemple d'exploration :
+
+```python
+import pandas as pd
+
+df = pd.read_csv("store_data.csv")
+
+df.shape
+df.info()
+df.head()
+df.describe()
+df.isna().sum()
+```
+
+Pour l'IQR :
+
+```text
+IQR = Q3 - Q1
+
+Borne inférieure = Q1 - 1.5 × IQR
+Borne supérieure = Q3 + 1.5 × IQR
+```
+
+Une valeur aberrante n'est pas automatiquement une erreur : elle doit être interprétée selon le contexte métier.
+
+**Source :**  
+https://www.geeksforgeeks.org/data-analysis/steps-for-mastering-exploratory-data-analysis-eda-steps/
 
 ### 1.5 Data Profiling
-...
+
+Le **Data Profiling** consiste à analyser automatiquement la structure et la qualité d'un dataset.
+
+Il permet notamment d'obtenir des informations sur :
+- les types de données ;
+- les valeurs manquantes ;
+- les valeurs uniques ;
+- les distributions ;
+- les statistiques descriptives ;
+- les corrélations ;
+- certaines anomalies.
+
+Dans DataStore360, **ydata-profiling** a été utilisé pour générer un rapport HTML de profiling.
+
+**Source :**  
+https://www.geeksforgeeks.org/data-analysis/understanding-data-profiling/
 
 ### 1.6 Skewness
-...
+
+La **skewness**, ou coefficient d'asymétrie, permet de mesurer l'asymétrie d'une distribution.
+
+```text
+Skewness ≈ 0
+→ distribution relativement symétrique
+
+Skewness > 0
+→ asymétrie à droite
+
+Skewness < 0
+→ asymétrie à gauche
+```
+
+Elle permet de mieux comprendre la forme des distributions et d'identifier certaines situations nécessitant une analyse complémentaire.
 
 ---
 
-## 2. Technologies étudiées
+# 2. Technologies étudiées
 
-### 2.1 uv
-...
+## 2.1 uv
 
-### 2.2 Apache Airflow
-...
+**uv** est un outil de gestion des projets Python et de leurs dépendances.
 
-### 2.3 Docker
-...
+Il permet notamment de :
+- gérer les dépendances ;
+- gérer l'environnement du projet ;
+- installer les packages ;
+- gérer `pyproject.toml` ;
+- générer `uv.lock`.
 
-### 2.4 PostgreSQL
-...
+Dans DataStore360, uv est utilisé pour gérer l'environnement Python et les dépendances du projet.
 
----
+uv est développé en Rust.
 
-## 3. Architecture des données
+## 2.2 Apache Airflow
 
-### 3.1 Pourquoi staging ?
-...
+**Apache Airflow** est une plateforme open source permettant d'orchestrer des workflows.
 
-### 3.2 Pourquoi core ?
-...
+Elle permet de :
+- définir des pipelines ;
+- organiser les tâches ;
+- définir leurs dépendances ;
+- planifier leur exécution ;
+- surveiller leur état ;
+- consulter les logs.
 
-### 3.3 Différence staging / core
-...
+Dans DataStore360, Airflow automatise l'exécution du pipeline de données.
 
----
+## 2.3 Docker
 
-## 4. Qualité des données
+**Docker** permet d'exécuter les différents composants du projet dans des conteneurs.
 
-### 4.1 Valeurs manquantes
-...
+DataStore360 utilise notamment des conteneurs pour :
+- PostgreSQL ;
+- pgAdmin ;
+- Airflow Webserver ;
+- Airflow Scheduler ;
+- la base de métadonnées Airflow ;
+- l'environnement du projet.
 
-### 4.2 Doublons
-...
+**Docker Compose** permet de gérer ces services ensemble.
 
-### 4.3 Valeurs aberrantes
-...
+## 2.4 PostgreSQL
 
-### 4.4 Incohérences
-...
+**PostgreSQL** est utilisé comme système de gestion de base de données relationnelle.
 
----
+Il permet de stocker les données structurées et de définir des contraintes comme :
+- clés primaires (**PK**) ;
+- clés étrangères (**FK**) ;
+- types de données ;
+- contraintes d'intégrité.
 
-## 5. RGPD
+DataStore360 utilise les schémas :
 
-### 5.1 Données personnelles
-...
-
-### 5.2 Pseudonymisation
-...
-
-### 5.3 Pourquoi SHA-256 ?
-...
-
----
-
-## 6. Pipeline Data Engineering
-
-### 6.1 Extraction
-...
-
-### 6.2 Staging
-...
-
-### 6.3 Cleaning
-...
-
-### 6.4 Transformation
-...
-
-### 6.5 Loading
-...
-
-### 6.6 Validation
-...
-
-### 6.7 Statistiques
-...
+```text
+staging
+core
+```
 
 ---
 
-## 7. Airflow
+# 3. Architecture des données
 
-### 7.1 DAG
-...
+## 3.1 Pourquoi `staging` ?
 
-### 7.2 Dépendances
-...
+Le schéma `staging` permet de conserver une copie des données brutes avant leur transformation.
 
-### 7.3 Tasks
-...
+Table utilisée :
 
-### 7.4 Logs
-...
+```text
+staging.superstore_raw
+```
+
+Cette zone conserve une référence aux données sources avant les opérations de nettoyage et de transformation.
+
+## 3.2 Pourquoi `core` ?
+
+Le schéma `core` contient les données finales destinées à être exploitées.
+
+Les données y sont :
+- nettoyées ;
+- transformées ;
+- structurées ;
+- pseudonymisées.
+
+Tables principales :
+
+```text
+core.customers
+core.products
+core.orders
+```
+
+## 3.3 Différence entre `staging` et `core`
+
+| Staging | Core |
+|---|---|
+| Données brutes | Données transformées |
+| Copie du dataset source | Modèle structuré |
+| Peu ou pas de contraintes | PK / FK |
+| Avant nettoyage | Après nettoyage |
+| Données personnelles potentiellement présentes | Données pseudonymisées |
+
+```text
+CSV brut
+   ↓
+STAGING
+   ↓
+Cleaning + Transformation
+   ↓
+CORE
+```
 
 ---
 
-## 8. Idempotence
+# 4. Qualité des données
 
-### Pourquoi l'idempotence ?
-...
+## 4.1 Valeurs manquantes
 
-### Comment elle est implémentée ?
-...
+Les valeurs manquantes ont été identifiées pendant l'EDA avec :
+
+```python
+df.isna().sum()
+```
+
+Le traitement dépend du contexte. Lorsqu'une valeur pouvait être récupérée de manière fiable à partir d'autres observations cohérentes, elle a été récupérée. Lorsqu'aucune information fiable n'était disponible, la valeur n'a pas été inventée.
+
+## 4.2 Doublons
+
+Les doublons ont été recherchés avec :
+
+```python
+df.duplicated().sum()
+```
+
+Les doublons identifiés comme réels ont été supprimés lors de la phase de nettoyage.
+
+Le nombre de doublons supprimés est utilisé dans les statistiques finales du projet.
+
+## 4.3 Valeurs aberrantes
+
+Les valeurs aberrantes ont été identifiées pendant l'analyse exploratoire, notamment à l'aide de l'IQR.
+
+Une valeur élevée ou faible n'est pas nécessairement une erreur et doit être comparée aux règles métier.
+
+## 4.4 Incohérences
+
+Plusieurs contrôles de cohérence ont été réalisés.
+
+### Dates
+
+```text
+Ship Date >= Order Date
+```
+
+### Quantité
+
+La quantité ne doit pas être négative.
+
+### Discount
+
+La remise doit rester dans une plage valide.
+
+### Relations métier
+
+Une commande doit être associée à un client et à un produit.
+
+Les données finales sont chargées dans des tables relationnelles avec des clés primaires et étrangères.
 
 ---
 
-## 9. Sources
+# 5. RGPD
 
-- ...
-- ...
+## 5.1 Données personnelles
+
+Le champ :
+
+```text
+Customer Name
+```
+
+contient des informations permettant d'identifier directement un client.
+
+Il nécessite donc une attention particulière lors du traitement du dataset.
+
+## 5.2 Anonymisation
+
+Pour éviter de conserver les noms des clients en clair dans `core`, une anonymisation a été appliquée.
+
+```text
+Customer Name
+      ↓
+SHA-256
+      ↓
+Hash
+      ↓
+core.customers.customer_name
+```
+
+Ainsi, `core.customers` ne contient pas les noms des clients en clair.
+
+## 5.3 Pourquoi SHA-256 ?
+
+SHA-256 est une fonction de hachage cryptographique produisant une empreinte de taille fixe.
+
+Dans DataStore360, elle est utilisée pour remplacer les noms des clients par une valeur pseudonymisée.
+
+La anonymisation ne signifie pas que les données deviennent anonymes au sens juridique. Elle constitue une mesure de protection visant à réduire l'exposition directe des données personnelles.
+
+---
+
+# 6. Pipeline Data Engineering
+
+## 6.1 Extraction
+
+La première étape consiste à lire :
+
+```text
+data/raw/store_data.csv
+```
+
+Le fichier est chargé avec Pandas.
+
+## 6.2 Staging
+
+Les données extraites sont chargées dans :
+
+```text
+staging.superstore_raw
+```
+
+Cette étape conserve les données brutes dans PostgreSQL avant leur transformation.
+
+## 6.3 Cleaning
+
+La phase de nettoyage permet notamment de :
+- supprimer les doublons.
+- traiter les valeurs manquantes.
+- nettoyer les chaînes de caractères.
+- convertir les dates.
+- vérifier les incohérences.
+- appliquer les règles métier.
+
+## 6.4 Transformation
+
+La transformation prépare les données pour leur utilisation finale.
+
+### Anonymisation
+
+```text
+Customer Name → SHA-256
+```
+
+### Délai de livraison
+
+```text
+delivery_time = Ship Date - Order Date
+```
+
+### Marge bénéficiaire
+
+```text
+profit_margin = Profit / Sales
+```
+
+## 6.5 Loading
+
+Les données transformées sont réparties dans :
+
+```text
+core.customers
+core.products
+core.orders
+```
+
+Les relations entre les tables sont assurées par les clés étrangères.
+
+## 6.6 Validation
+
+Après le chargement, plusieurs contrôles sont réalisés :
+- nombre de lignes.
+- doublons.
+- valeurs manquantes.
+- clés primaires.
+- clés étrangères.
+- cohérence des dates.
+- validité des valeurs.
+- présence de données personnelles en clair.
+
+## 6.7 Statistiques
+
+Une étape de restitution produit les statistiques finales :
+- nombre de clients.
+- nombre de produits.
+- nombre de commandes.
+- ventes par catégorie.
+- ventes par région.
+- ventes par segment.
+- doublons supprimés.
+- taux de complétude final.
+- techniques RGPD appliquées.
+
+---
+
+# 7. Airflow
+
+## 7.1 DAG
+
+Un **DAG (Directed Acyclic Graph)** représente les tâches d'un workflow et leurs dépendances.
+
+Dans DataStore360 :
+
+```text
+extract
+   ↓
+load_staging
+   ↓
+clean
+   ↓
+transform
+   ↓
+clear_core
+   ↓
+load_core
+   ↓
+validate
+```
+
+## 7.2 Dépendances
+
+Une dépendance définit l'ordre d'exécution entre les tâches.
+
+Par exemple :
+
+```python
+extract >> load_staging
+```
+
+signifie que `load_staging` doit être exécutée après `extract`.
+
+## 7.3 Tasks
+
+Chaque étape du pipeline est représentée par une tâche Airflow.
+
+Exemples :
+
+```text
+extract
+load_staging
+clean
+transform
+load_customers
+load_products
+load_orders
+validate
+statistics
+```
+
+## 7.4 Logs
+
+Airflow permet de consulter les logs de chaque tâche afin de :
+- suivre l'exécution.
+- afficher le nombre de lignes traitées.
+- identifier les erreurs.
+- vérifier les connexions.
+- suivre les chargements.
+
+---
+
+# 8. Idempotence
+
+## 8.1 Pourquoi l'idempotence ?
+
+Un pipeline idempotent peut être relancé sans provoquer d'accumulation indésirable de données.
+
+Dans DataStore360, cette propriété est importante car le pipeline peut être relancé par Airflow.
+
+Sans mécanisme d'idempotence, une deuxième exécution pourrait provoquer des doublons ou des erreurs de clés primaires.
+
+## 8.2 Comment elle est implémentée ?
+
+Avant de recharger les données dans `core`, les tables sont vidées puis rechargées à partir des données transformées.
+
+```text
+Données staging
+      ↓
+Cleaning
+      ↓
+Transformation
+      ↓
+TRUNCATE core
+      ↓
+Reload core
+```
+
+Les tables sont chargées dans l'ordre permettant de respecter les dépendances :
+
+```text
+customers
+    ↓
+products
+    ↓
+orders
+```
+
+Le `staging` n'est pas supprimé car il doit conserver les données brutes.
+
+Une deuxième exécution du pipeline permet ainsi de reconstruire le `core` sans créer de doublons.
+
+---
+
+# 9. Pourquoi ces choix ?
+
+## Pourquoi `staging` ?
+
+Conserver les données brutes avant transformation et disposer d'une référence aux données sources.
+
+## Pourquoi `core` ?
+
+Stocker les données nettoyées, transformées, structurées et pseudonymisées.
+
+## Pourquoi PostgreSQL ?
+
+Stocker les données structurées et garantir les relations grâce aux PK et FK.
+
+## Pourquoi Airflow ?
+
+Orchestrer les différentes étapes du pipeline, gérer leurs dépendances et suivre leur exécution.
+
+## Pourquoi Docker ?
+
+Isoler et reproduire l'environnement d'exécution des différents services.
+
+## Pourquoi uv ?
+
+Gérer les dépendances et l'environnement du projet Python.
+
+## Pourquoi SHA-256 ?
+
+Pseudonymiser les noms des clients afin de ne pas conserver les noms en clair dans le `core`.
+
+## Pourquoi l'idempotence ?
+
+Permettre de relancer le pipeline sans créer de doublons indésirables dans les tables finales.
+
+---
+
+# 10. Sources
+
+- Dataset — GeeksforGeeks :  
+  https://www.geeksforgeeks.org/data-science/what-is-dataset/
+- EDA — GeeksforGeeks :  
+  https://www.geeksforgeeks.org/data-analysis/steps-for-mastering-exploratory-data-analysis-eda-steps/
+- Data Quality — GeeksforGeeks :  
+  https://www.geeksforgeeks.org/data-science/what-is-data-quality-and-why-is-it-important/
+- Data Profiling — GeeksforGeeks :  
+  https://www.geeksforgeeks.org/data-analysis/understanding-data-profiling/

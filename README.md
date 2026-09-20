@@ -4,7 +4,7 @@
 
 DataStore360 est un projet de Data Engineering dont l'objectif est de transformer
 un jeu de données de ventes brutes en données nettoyées, structurées,
-pseudonymisées et exploitables pour l'analyse.
+anonymisées et exploitables pour l'analyse.
 
 Le projet met en œuvre un pipeline de données automatisé permettant
 d'extraire les données, les charger dans une zone de staging, les nettoyer,
@@ -35,7 +35,7 @@ Le pipeline permet notamment de :
 - nettoyer les données.
 - traiter les valeurs manquantes et les doublons.
 - vérifier les incohérences.
-- pseudonymiser les données personnelles.
+- anonymiser les données personnelles.
 - calculer des variables dérivées.
 - stocker les données dans PostgreSQL.
 - automatiser le traitement avec Apache Airflow.
@@ -129,10 +129,7 @@ Le fonctionnement général du pipeline est :
          Customers Products Orders
                      |
                      v
-                 Validation
-                     |
-                     v
-                Statistiques
+            Validation + Statistiques
 ```
 
 ### 4. Technologies utilisées
@@ -166,9 +163,8 @@ DataStore360/
 │   └── processed/
 │
 ├── notebooks/
-│   ├── 01_eda.ipynb
-│   ├── 02_profiling.ipynb
-│   └── 03_cleaning_rgpd.ipynb
+│   ├── exploring.ipynb
+│   ├── transform.ipynb
 │
 ├── src/
 │   ├── __init__.py
@@ -184,8 +180,8 @@ DataStore360/
 │
 ├── include/
 │   └── sql/
-│       ├── 01_schemas.sql
-│       └── 02_tables.sql
+│       ├── creation.sql
+│       └── statistiques.sql
 │
 ├── reports/
 │   └── profiling_report.html
@@ -208,12 +204,12 @@ de Data Profiling.
 
 Les principaux contrôles réalisés concernent :
 
-   - les valeurs manquantes ;
-   - les doublons ;
-   - les types de données ;
-   - les dates ;
-   - les valeurs aberrantes ;
-   - les incohérences ;
+   - les valeurs manquantes.
+   - les doublons.
+   - les types de données.
+   - les dates.
+   - les valeurs aberrantes.
+   - les incohérences.
    - les contraintes métier.
 
 ### Principaux problèmes identifiés
@@ -225,7 +221,7 @@ Les principaux contrôles réalisés concernent :
 | Dates                    | Conversion et contrôle de cohérence                 |
 | `Ship Date < Order Date` | Détection et traitement                             |
 | `Ship Mode` manquant     | Recherche d'une valeur cohérente lorsque disponible |
-| Noms clients             | Nettoyage puis pseudonymisation                     |
+| Noms clients             | Nettoyage puis anonymisation                     |
 | Valeurs aberrantes       | Identification et analyse                           |
 
 
@@ -233,12 +229,12 @@ Les principaux contrôles réalisés concernent :
 
 Les règles suivantes sont également vérifiées :
 
-   - une commande est associée à un client ;
-   - une commande est associée à un produit ;
-   - un client peut avoir plusieurs commandes ;
-   - un produit peut apparaître dans plusieurs commandes ;
-   - la remise doit être dans une plage valide ;
-   - la quantité ne doit pas être négative ;
+   - une commande est associée à un client.
+   - une commande est associée à un produit.
+   - un client peut avoir plusieurs commandes.
+   - un produit peut apparaître dans plusieurs commandes.
+   - la remise doit être dans une plage valide.
+   - la quantité ne doit pas être négative.
    - la date d'expédition ne doit pas être antérieure à la date de commande.
 
 ### 7. RGPD et pseudonymisation
@@ -264,7 +260,6 @@ Customer Name
 
 ```
 
-
 Cette transformation permet de limiter l'exposition directe des données
 personnelles dans la couche `core`.
 
@@ -289,7 +284,7 @@ Cette table sert de copie des données sources.
 `Core`
 
 Le schéma core contient les données nettoyées, transformées et
-pseudonymisées.
+anonymisées.
 
 Les tables principales sont :
 
@@ -331,15 +326,9 @@ transform
    ↓
 clear_core
    ↓
-load_customers
-   ↓
-load_products
-   ↓
-load_orders
+load_core
    ↓
 validate
-   ↓
-statistics
 ```
 Chaque tâche est exécutée dans l'ordre défini par ses dépendances.
 
@@ -377,15 +366,23 @@ Une deuxième exécution du pipeline peut ainsi être effectuée sans
 créer de doublons dans les tables core.
 
 ### 11. Installation
-
+```bash
 #### 1. Cloner le projet
+
 git clone <URL_DU_REPOSITORY>
+
 #### 2. Accéder au projet
+
 cd DataStore360
+
 #### 3. Lancer les services Docker
+
 docker compose up -d
+
 #### 4. Vérifier les conteneurs
+
 docker compose ps
+```
 
 Les principaux services utilisés sont :
 
@@ -395,6 +392,7 @@ Airflow Webserver.
 Airflow Scheduler.
 PostgreSQL pour les métadonnées Airflow.
 environnement applicatif DataStore360.
+
 ### 12. Exécution
 
 Une fois les conteneurs démarrés, accéder à l'interface Airflow.
@@ -416,9 +414,7 @@ Transformation
     ↓
 Chargement Core
     ↓
-Validation
-    ↓
-Statistiques
+Validation+Stratistique
 ```
 Les logs de chaque tâche peuvent être consultés depuis l'interface
 Airflow.
@@ -429,20 +425,18 @@ Après l'exécution du pipeline, plusieurs contrôles sont effectués.
 
 Vérification des tables
 ```BASH
-      SELECT COUNT(*) FROM core.customers;
-
-      SELECT COUNT(*) FROM core.products;
-
-      SELECT COUNT(*) FROM core.orders;
-      Vérification des doublons
-      SELECT customer_id, COUNT(*)
-      FROM core.customers
-      GROUP BY customer_id
-      HAVING COUNT(*) > 1;
-      Vérification des données personnelles
-      SELECT customer_name
-      FROM core.customers
-      LIMIT 10;
+SELECT COUNT(*) FROM core.customers;
+SELECT COUNT(*) FROM core.products;
+SELECT COUNT(*) FROM core.orders;
+Vérification des doublons
+SELECT customer_id, COUNT(*)
+FROM core.customers
+GROUP BY customer_id
+HAVING COUNT(*) > 1;
+Vérification des données personnelles
+SELECT customer_name
+FROM core.customers
+LIMIT 10;
 ```
 Les noms des clients ne doivent pas apparaître en clair.
 
