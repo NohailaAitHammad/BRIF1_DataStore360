@@ -1,0 +1,436 @@
+# ============================================================
+# DataStore360 - Docker Compose
+# ============================================================
+#
+# Services :
+#
+# 1. postgres       → base de données principale
+# 2. pgadmin        → interface graphique PostgreSQL
+# 3. airflow-webserver
+# 4. airflow-scheduler
+# 5. datastore360   → environnement Python du projet
+#
+# ============================================================
+
+services:
+
+  # ==========================================================
+  # 1. POSTGRESQL
+  # ==========================================================
+
+  postgres:
+
+    # Image officielle PostgreSQL
+    image: postgres:16
+
+    # Nom du conteneur
+    container_name: datastore360-postgres
+
+    # Redémarre automatiquement sauf si on arrête manuellement
+    restart: unless-stopped
+
+    # Variables de configuration PostgreSQL
+    environment:
+
+      # Nom de la base
+      POSTGRES_DB: ${POSTGRES_DB}
+
+      # Utilisateur PostgreSQL
+      POSTGRES_USER: ${POSTGRES_USER}
+
+      # Mot de passe PostgreSQL
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    # --------------------------------------------------------
+    # Ports
+    # --------------------------------------------------------
+    #
+    # 5432 = port PostgreSQL dans le conteneur
+    # 5432 = port accessible depuis ton PC
+    #
+    ports:
+      - "5432:5432"
+
+    # --------------------------------------------------------
+    # Volume
+    # --------------------------------------------------------
+    #
+    # Les données PostgreSQL restent même si le conteneur
+    # est supprimé.
+    #
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    # --------------------------------------------------------
+    # Healthcheck
+    # --------------------------------------------------------
+    #
+    # Permet de vérifier que PostgreSQL est réellement prêt.
+    #
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+        ]
+
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    # Réseau Docker
+    networks:
+      - datastore360
+
+
+  # ==========================================================
+  # 2. PGADMIN
+  # ==========================================================
+
+  pgadmin:
+
+    # Image officielle pgAdmin
+    image: dpage/pgadmin4:latest
+
+    container_name: datastore360-pgadmin
+
+    restart: unless-stopped
+
+    # --------------------------------------------------------
+    # Configuration pgAdmin
+    # --------------------------------------------------------
+
+    environment:
+
+      # Email utilisé pour se connecter à pgAdmin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+
+      # Mot de passe pgAdmin
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+
+    # --------------------------------------------------------
+    # Port
+    # --------------------------------------------------------
+    #
+    #
+    # http://localhost:5050
+    #
+    ports:
+      - "5050:80"
+
+    # --------------------------------------------------------
+    # Volume
+    # --------------------------------------------------------
+    #
+    # Conserve la configuration pgAdmin.
+    #
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+    # PostgreSQL doit être lancé avant pgAdmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - datastore360
+
+
+  # ==========================================================
+  # 3. AIRFLOW DATABASE
+  # ==========================================================
+  #
+  # Airflow possède sa propre base de métadonnées.
+  #
+  #
+  # Airflow utilise cette DB pour stocker :
+  # - DAGs
+  # - tâches
+  # - runs
+  # - utilisateurs
+  # - logs
+  #
+  # ==========================================================
+
+  airflow-postgres:
+
+    image: postgres:16
+
+    container_name: datastore360-airflow-postgres
+
+    restart: unless-stopped
+
+    environment:
+
+      POSTGRES_DB: airflow
+
+      POSTGRES_USER: airflow
+
+      POSTGRES_PASSWORD: airflow
+
+    volumes:
+      - airflow_postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U airflow -d airflow"
+        ]
+
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - datastore360
+
+
+  # ==========================================================
+  # 4. AIRFLOW WEBSERVER
+  # ==========================================================
+
+  airflow-webserver:
+
+    image: apache/airflow:2.10.5-python3.12
+
+    container_name: datastore360-airflow-webserver
+
+    restart: unless-stopped
+
+    # --------------------------------------------------------
+    # Configuration Airflow
+    # --------------------------------------------------------
+
+    environment:
+
+      # Executor utilisé par Airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+
+      # URL de connexion à la base metadata Airflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN:
+        postgresql+psycopg2://airflow:airflow@airflow-postgres:5432/airflow
+
+      # Désactive le chargement des exemples
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+
+      # Clé secrète Airflow
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+
+      # Timezone
+      AIRFLOW__CORE__DEFAULT_TIMEZONE: Africa/Casablanca
+
+      PYTHONPATH: /opt/airflow:/opt/airflow/src
+      # ------------------------------------------------------
+      # Variables DataStore360
+      # ------------------------------------------------------
+
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    # --------------------------------------------------------
+    # Ports
+    # --------------------------------------------------------
+
+    ports:
+      - "8080:8080"
+
+    # --------------------------------------------------------
+    # Volumes
+    # --------------------------------------------------------
+    #
+    # Notre DAG est directement visible par Airflow.
+    #
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./include:/opt/airflow/include
+      - ./data:/opt/airflow/data
+      - ./reports:/opt/airflow/reports
+
+    depends_on:
+
+      airflow-postgres:
+        condition: service_healthy
+
+      postgres:
+        condition: service_healthy
+
+    # --------------------------------------------------------
+    # Commande
+    # --------------------------------------------------------
+
+    command: >
+      bash -c "
+      airflow db migrate &&
+      airflow users create
+      --username admin
+      --password admin
+      --firstname Admin
+      --lastname DataStore360
+      --role Admin
+      --email admin@datastore360.local
+      || true &&
+      airflow webserver
+      "
+
+    networks:
+      - datastore360
+
+
+  # ==========================================================
+  # 5. AIRFLOW SCHEDULER
+  # ==========================================================
+
+  airflow-scheduler:
+
+    image: apache/airflow:2.10.5-python3.12
+
+    container_name: datastore360-airflow-scheduler
+
+    restart: unless-stopped
+
+    environment:
+
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN:
+        postgresql+psycopg2://airflow:airflow@airflow-postgres:5432/airflow
+
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+
+      AIRFLOW__CORE__DEFAULT_TIMEZONE: Africa/Casablanca
+
+      PYTHONPATH: /opt/airflow:/opt/airflow/src
+
+      # Variables utilisées par le pipeline
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./include:/opt/airflow/include
+      - ./data:/opt/airflow/data
+      - ./reports:/opt/airflow/reports
+
+    depends_on:
+
+      airflow-postgres:
+        condition: service_healthy
+
+      postgres:
+        condition: service_healthy
+
+    command:
+      - scheduler
+
+    networks:
+      - datastore360
+
+
+  # ==========================================================
+  # 6. DATASTORE360 PYTHON
+  # ==========================================================
+  #
+  # Ce conteneur contient :
+  #
+  # - pandas
+  # - numpy
+  # - seaborn
+  # - ydata-profiling
+  # - SQLAlchemy
+  # - psycopg2
+  # - Jupyter
+  #
+  # ==========================================================
+
+  datastore360:
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: datastore360-app
+
+    restart: unless-stopped
+
+    # Variables PostgreSQL
+    environment:
+
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    # --------------------------------------------------------
+    # Volumes
+    # --------------------------------------------------------
+    #
+    #
+    volumes:
+
+      - ./src:/app/src
+
+      - ./notebooks:/app/notebooks
+
+      - ./data:/app/data
+
+      - ./reports:/app/reports
+
+      - ./dags:/app/dags
+
+      - ./include:/app/include
+
+    depends_on:
+
+      postgres:
+        condition: service_healthy
+
+    # --------------------------------------------------------
+    # Garde le conteneur actif
+    # --------------------------------------------------------
+
+    command:
+      - tail
+      - -f
+      - /dev/null
+
+    networks:
+      - datastore360
+
+
+# ============================================================
+# VOLUMES
+# ============================================================
+
+volumes:
+
+  # Données de la base DataStore360
+  postgres_data:
+
+  # Données pgAdmin
+  pgadmin_data:
+
+  # Base metadata Airflow
+  airflow_postgres_data:
+
+
+# ============================================================
+# NETWORK
+# ============================================================
+
+networks:
+
+  datastore360:
+
+    driver: bridge

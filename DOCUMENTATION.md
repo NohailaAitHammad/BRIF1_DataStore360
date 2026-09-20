@@ -63,3 +63,166 @@
       - Skewness > 0 : La distribution est asymétrique à droite (queue positive plus longue, moyenne souvent supérieure à la médiane). 
       - Skewness < 0 : La distribution est asymétrique à gauche (queue négative plus longue, moyenne souvent inférieure à la médiane). 
       - Ce coefficient est crucial pour évaluer la normalité des données et comprendre si les valeurs extrêmes sont concentrées d'un côté spécifique de la moyenne. 
+
+
+Pourquoi staging ?
+
+Conserver une copie des données brutes avant transformation.
+
+Pourquoi core ?
+
+Stocker les données nettoyées, transformées et pseudonymisées.
+
+Pourquoi SHA-256 ?
+
+Remplacer le nom client en clair par une valeur pseudonymisée.
+
+Pourquoi Airflow ?
+
+Orchestrer les différentes étapes du pipeline.
+
+Pourquoi PostgreSQL ?
+
+Stocker les données structurées avec des contraintes PK/FK.
+
+Pourquoi l'idempotence ?
+
+Permettre de relancer le pipeline sans créer de doublons.
+
+# Documentation DataStore360
+
+## 1. Concepts étudiés
+
+### 1.1 Dataset
+...
+
+### 1.2 Data Engineer
+...
+
+### 1.3 Data Quality
+...
+
+### 1.4 EDA
+...
+
+### 1.5 Data Profiling
+...
+
+### 1.6 Skewness
+...
+
+---
+
+## 2. Technologies étudiées
+
+### 2.1 uv
+...
+
+### 2.2 Apache Airflow
+...
+
+### 2.3 Docker
+...
+
+### 2.4 PostgreSQL
+...
+
+---
+
+## 3. Architecture des données
+
+### 3.1 Pourquoi staging ?
+...
+
+### 3.2 Pourquoi core ?
+...
+
+### 3.3 Différence staging / core
+...
+
+---
+
+## 4. Qualité des données
+
+### 4.1 Valeurs manquantes
+...
+
+### 4.2 Doublons
+...
+
+### 4.3 Valeurs aberrantes
+...
+
+### 4.4 Incohérences
+...
+
+---
+
+## 5. RGPD
+
+### 5.1 Données personnelles
+...
+
+### 5.2 Pseudonymisation
+...
+
+### 5.3 Pourquoi SHA-256 ?
+...
+
+---
+
+## 6. Pipeline Data Engineering
+
+### 6.1 Extraction
+...
+
+### 6.2 Staging
+...
+
+### 6.3 Cleaning
+...
+
+### 6.4 Transformation
+...
+
+### 6.5 Loading
+...
+
+### 6.6 Validation
+...
+
+### 6.7 Statistiques
+...
+
+---
+
+## 7. Airflow
+
+### 7.1 DAG
+...
+
+### 7.2 Dépendances
+...
+
+### 7.3 Tasks
+...
+
+### 7.4 Logs
+...
+
+---
+
+## 8. Idempotence
+
+### Pourquoi l'idempotence ?
+...
+
+### Comment elle est implémentée ?
+...
+
+---
+
+## 9. Sources
+
+- ...
+- ...

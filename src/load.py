@@ -138,6 +138,5 @@ def load_data_core(df_clean):
 
       load_core(orders, 'orders')
       
-      return True
 
 

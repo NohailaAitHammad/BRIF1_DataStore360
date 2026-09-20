@@ -5,3 +5,4 @@ from .extract import extract_data
 from .load import load_data_staging, clean_data_core
 from .cleaning import clean_data
 from .validation import validation
+from .statistics import generate_statistics

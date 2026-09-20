@@ -52,5 +52,3 @@ reports/*.html
 
 .DS_Store
 Thumbs.db
-docker-compose.yaml
-Dockerfile

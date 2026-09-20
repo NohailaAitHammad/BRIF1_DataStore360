@@ -43,7 +43,7 @@ def Hello_airflow():
       @task
       def load_core(df_clean):
             print("/=== Chargement dans core ===/")
-            return load_data_core(df_clean)
+            load_data_core(df_clean)
 
       @task
       def validate():
