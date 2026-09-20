@@ -1,7 +1,10 @@
 from datetime import datetime
-from airflow import DAG
-from airflow.operators.bash import BashOperator
 from airflow.decorators import dag, task
+from src.extract import extract_data
+from src.load import load_data_staging, load_data_core, clean_data_core
+from src.cleaning import clean_data
+from src.transform import transform_data
+from src.validation import validation
 
 @dag(
       dag_id="Hello_airflow",
@@ -12,35 +15,52 @@ def Hello_airflow():
 
       @task
       def extract():
-            print("Extract fichier csv")
+            print("/==== Extraction des données ===/")
+            return extract_data() 
       
       @task
-      def load_staging():
-            print("cHARGEMENT DANS STAGING")
+      def load_staging(df_raw):
+            result= load_data_staging(df_raw)
+            print("/=== Chargement dans staging ===/")
+            print("Résultat :", result)
+            return df_raw
       
       @task
-      def clean():
-            print("netoyage de donnees")
+      def clean(df):
+            print("/=== Netoyage de données ===/")
+            return  clean_data(df)
+
+      @task
+      def transform(df_clean):
+            print("/=== Transformation des donnees ===/")
+            return  transform_data(df_clean)  
+
+      @task
+      def clean_core(df):
+            print("/=== Netoyage des tables dans core ===/")
+            return clean_data_core(df)
       
       @task
-      def transform():
-            print("transformation des donnees")
-      
-      @task
-      def load_core():
-            print("chargement dans core")
+      def load_core(df_clean):
+            print("/=== Chargement dans core ===/")
+            return load_data_core(df_clean)
 
       @task
       def validate():
-            print("validation des donnees")
+            print("/=== validation des donnees ===/")
+            validation()
+            print("/=== Fin pipeline ===/")
+
+            
       
       extracted = extract()
-      staged = load_staging()
-      cleaned = clean()
-      transformed = transform()
-      core_loaded = load_core()
+      staged = load_staging(extracted)
+      cleaned = clean(staged)
+      transformed = transform(cleaned)
+      cleaned_core = clean_core(transformed)
+      core_loaded = load_core(cleaned_core)
       validated = validate()
 
-      extracted >> staged >> cleaned >> transformed >> core_loaded >> validated
+      extracted >> staged >> cleaned >> transformed >> cleaned_core >> core_loaded >> validated
 
 Hello_airflow()
